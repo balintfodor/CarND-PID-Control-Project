@@ -33,10 +33,9 @@ int main()
   uWS::Hub h;
 
   PID pid;
-  pid.Init(0.05, 0.000025, 0.01);
-  double recursive_error = 2.5;
+  pid.Init(0.2, 0.000025, 0.01);
 
-  h.onMessage([&pid, &recursive_error](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, uWS::OpCode opCode) {
+  h.onMessage([&pid](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
     // The 4 signifies a websocket message
     // The 2 signifies a websocket event
@@ -57,17 +56,13 @@ int main()
           double u = -pid.TotalError();
           u = fmax(-1.0, fmin(1.0, u));
           steer_value = u;
-          recursive_error = 0.3 * recursive_error + 0.7 * cte;
 
           // DEBUG
-          // std::cout << "p_error " << pid.p_error << "\n";
-          // std::cout << "i_error " << pid.i_error << "\n";
-          // std::cout << "d_error " << pid.d_error << "\n";
           std::cout << "CTE: " << cte << " Steering Value: " << steer_value << std::endl;
 
           json msgJson;
           msgJson["steering_angle"] = steer_value;
-          msgJson["throttle"] = 0.5 - fmin(fabs(recursive_error), 2.5) * 0.16;
+          msgJson["throttle"] = 0.1;
           auto msg = "42[\"steer\"," + msgJson.dump() + "]";
           std::cout << msg << std::endl;
           ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
