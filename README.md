@@ -38,3 +38,51 @@ Component **I** acts in the long term. It uses the cumulative error to steer the
 
 ![](assets/only_i.gif)
 
+## Parameter Tuning
+
+I used manual parameter tuning following the heuristics from [https://courses.cs.washington.edu/courses/csep567/10wi/lectures/Lecture9.pdf]()
+
+## Additional Tweaks
+
+### Throttle
+
+I used a simple way to set the throttle. If the absolute error **fabs(cte)** is small we can speed up. If it is large then we slow down so the steering has more time to compensate.
+
+```
+double throttle = 0.05;
+if (fabs(cte) < 0.5) {
+    if (fabs(cte) < 0.2) {
+        throttle = 0.6;
+    } else {
+        throttle = 0.1;
+    }
+}
+```
+
+### Kp
+
+Parameter for component **P** is slightly adjusted based on the speed. We want quick compensation when we are driving slow, so we want a higher value for the parameter. But the same parameter for a higher speed can cause oscellation, so we lower the parameter for the higher speeds.
+
+```
+pid.Kp = 0.15;
+if (speed > 15) {
+    if (speed > 30) {
+        pid.Kp = 0.0375;
+    } else {
+        pid.Kp = 0.075;
+    }
+}
+```
+
+### Emergency Break 
+
+If the absoule error is already high and the error derivative shows that the error is growing and our speed is above a certan level then this is a sign that we are going the wrong way. So we can hit the break, slow down and hope that we have time to get back on track in a slower pace.
+
+```
+double throttle = 0.05;
+if (fabs(cte) > 1.3 && pid.d_error > 0.005 && speed > 10) {
+    throttle = -0.01;
+}
+```
+
+![](assets/breaks.gif)

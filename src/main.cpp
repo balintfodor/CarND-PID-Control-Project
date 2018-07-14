@@ -71,9 +71,9 @@ int main()
                 throttle = -0.01;
             }
 
-            if (fabs(cte) < 0.6) {
+            if (fabs(cte) < 0.5) {
                 if (fabs(cte) < 0.2) {
-                    throttle = 0.7;
+                    throttle = 0.6;
                 } else {
                     throttle = 0.1;
                 }
@@ -86,7 +86,7 @@ int main()
             msgJson["steering_angle"] = steer_value;
             msgJson["throttle"] = throttle;
             auto msg = "42[\"steer\"," + msgJson.dump() + "]";
-            std::cout << msg << std::endl;
+            // std::cout << msg << std::endl;
             ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
         }
       } else {
