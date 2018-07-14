@@ -22,25 +22,25 @@ void PID::UpdateError(double cte) {
 }
 ```
 
-The absolute error (**fabs(cte)**) is small if the car is on track and starts to grow when the car starts to leave the center of the track. **Cte** is a signed value indicating the side the car started to leave the track on.
+The absolute error (**fabs(cte)**) is small if the car is on track and starts to increase when the car starts to leave the center of the track.
 
-The **P** term tries to directly compensate the error by steering to the oposite direction the absolute error grows. The magnitude of the compensation is proportional to the error value. Using only the P term to control the car can be seen in the following gif:
+The **P** term tries to directly compensate for the error by steering to the opposite direction to the absolute error increases. The magnitude of the compensation is proportional to the error value. Using only the **P** term:
 
 ![](assets/only_p.gif)
 
-As the speed increases the amplitude of the oscillation grows. The higher the absolute error the stronger it tries to compensate with steering. Also, the drove distance between two control timestamps (subsequent calls of PID::UpdateError) is also increasing (with the speed) and the overshoothing in the error grows too, ending in an unstable car.
+As the speed increases the amplitude of the oscillation grows. The higher the absolute error the stronger it tries to compensate with steering. Also, the driven distance between two control timestamps (subsequent calls of PID::UpdateError) is also increasing (with the speed) and the overshooting in the error grows too, resulting in an unstable car.
 
-The **D** component is for short term compensations. It reacts on the derivative of the error. So a huge change in the error will cause a rather large compensation. On the long term though, using only the **D** component can end up in a growing offset.
+The **D** component is for short-term compensations. It reacts on the derivative of the error. So a huge change in the error will cause a rather large compensation. In the long term though, using only the **D** component can end up in an increasing offset.
 
 ![](assets/only_d.gif)
 
-Component **I** acts in the long term. It uses the cumulative error to steer the car back on track. Its effect is somewhat delayed since it takes time to integrate enough amount of error to react on. So, using only the **I** term will not give quick reactions.
+Component **I** acts in the long term. It uses the cumulative error to steer the car back on track. Its effect is somewhat delayed since it takes time to integrate enough amount of error to react on. So, using only the **I** term will not give a quick response.
 
 ![](assets/only_i.gif)
 
 ## Parameter Tuning
 
-I used manual parameter tuning following the heuristics from [https://courses.cs.washington.edu/courses/csep567/10wi/lectures/Lecture9.pdf]()
+I used manual parameter tuning, following the heuristics from [https://courses.cs.washington.edu/courses/csep567/10wi/lectures/Lecture9.pdf]()
 
 ## Additional Tweaks
 
@@ -61,7 +61,7 @@ if (fabs(cte) < 0.5) {
 
 ### Kp
 
-Parameter for component **P** is slightly adjusted based on the speed. We want quick compensation when we are driving slow, so we want a higher value for the parameter. But the same parameter for a higher speed can cause oscellation, so we lower the parameter for the higher speeds.
+The parameter for component **P** is slightly adjusted based on the speed. We want quick compensation when we are driving slow, so we want a higher value for the parameter. But the same parameter for a higher speed can cause oscillation, so we lower the parameter for the higher speeds.
 
 ```
 pid.Kp = 0.15;
@@ -76,7 +76,7 @@ if (speed > 15) {
 
 ### Emergency Break 
 
-If the absoule error is already high and the error derivative shows that the error is growing and our speed is above a certan level then this is a sign that we are going the wrong way. So we can hit the break, slow down and hope that we have time to get back on track in a slower pace.
+If the absolute error is already high and the error derivative shows that the error is growing and our speed is above a certain level then this is a sign that we are going off track. So we can hit the break, slow down and hope that we have time to get back on track at a slower pace.
 
 ```
 double throttle = 0.05;
